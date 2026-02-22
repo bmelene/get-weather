@@ -34,16 +34,9 @@ CLOUDY = range(801, 900)
 
 ### Functions
 
-def _get_api_key():
+def _get_api_key()->str:
 
-    """Fetch the API key from your configuration file.
-    Expects a configuration file named "secrets.ini" with structure:
-
-        [openweather]
-        api_key=<YOUR-OPENWEATHER-API-KEY>
-
-    """
-
+    """ Fetch the API key from your configuration file. """
     config = ConfigParser()
     config.read("secrets.ini")
 
@@ -57,12 +50,13 @@ def read_user_cli_args():
 
     """
 
-    parser = argparse.ArgumentParser(description="gets weather and temperature information for a city")
+    parser = argparse.ArgumentParser(description="Gets weather and temperature information for a city")
     parser.add_argument(
         "city", 
-        nargs="+", 
-        type=str, 
-        help="enter the city name"
+        nargs="*", # Uses "*" instead of "+" to allow a default value.
+        type=str,
+        default=["Broxburn"], # nargs implies a list
+        help="City name"
     )
     parser.add_argument(
         "-i",
@@ -85,7 +79,7 @@ def read_user_cli_args():
 
     return parser.parse_args()
 
-def build_weather_query(city_input, imperial=False):
+def build_weather_query(city_input:list, imperial:bool=False)->str:
 
     """Builds the URL for an API request to OpenWeather's weather API.
     Args:
@@ -105,7 +99,7 @@ def build_weather_query(city_input, imperial=False):
 
     return url
 
-def get_weather_data(query_url):
+def get_weather_data(query_url:str)->dict:
 
     """Makes an API request to a URL and returns the data as a Python object.
     Args:
@@ -131,7 +125,7 @@ def get_weather_data(query_url):
     except json.JSONDecodeError:
         sys.exit("Couldn't read the server response.")
 
-def display_weather_info(weather_data, imperial=False):
+def display_weather_info(weather_data:dict, imperial:bool=False):
 
     """Prints formatted weather information about a city.
     Args:
@@ -176,7 +170,7 @@ def display_weather_info(weather_data, imperial=False):
     print(f"Pressure: {pressure} HPa")
     print(f"Time: {heure}")
 
-def csv_dump(csvfile):
+def csv_dump(csvfile:str):
     temperature = str(weather_data["main"]["temp"])
     pressure = str(weather_data["main"]["pressure"])
     heure = time.strftime('%H:%M:%S', time.localtime(weather_data['dt']))
